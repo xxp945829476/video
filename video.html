@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0,user-scalable=no" name="viewport" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="format-detection" content="email=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="keywords" content="视屏控制条制作" />
+    <meta name="description" content="视屏控制条制作" />
+    <title>视屏控制条制作</title>
+    <link rel="stylesheet" type="text/css" href="common/css/weui.min.css">
+    <link rel="stylesheet" type="text/css" href="common/css/base.css">
+    <link rel="stylesheet" type="text/css" href="css/datails.css">
+    <link rel="stylesheet" type="text/css" href="css/comment.css">
+    <style type="text/css">
+        .controls{
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            color: #fff;
+            font-size: 12px;
+            background: rgba(0,0,0,0.5);
+            padding: 10px 1% 10px 3%;
+            z-index: 2147483650;
+        }
+        .controls:before{
+            border: none;
+        }
+        .playing{
+            width: 20px;
+        }
+        .full{
+            width: 30px;
+        }
+        .controls time{
+            padding:0 10px;
+        }
+        .full{
+            padding-left: 4px;
+        }
+        .progress_box{
+            background: #fff;
+            height: 4px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .progress{
+            height: 4px;
+            background: red;
+            width: 0%;
+        }
+        #alltime{
+            padding-left: 6px;
+        }
+        video::-webkit-media-controls-enclosure{
+                display:none !important;
+        }
+    </style>
+
+</head>
+<body>
+        <div class="v_box">
+            <video id="media" src="http://www.w3school.com.cn/i/movie.ogg" preload width="100%" height="100%"></video>
+            <div class="weui-cell controls">
+                <div class="playing" id="playing"><img onclick="played(this)" id="pic" src="images/playing.png" /></div>
+                <time id="time">00:00:33</time>
+                <div class="weui-cell__bd progress_box" id="progress_box">
+                    <div class="progress" id="progress"></div>
+                </div>
+                <div id="alltime"></div>
+                <div class="full" id="full">
+                    <img src="images/full.png" />
+                </div>
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            var vd = document.getElementById('media');
+            var $play = document.getElementById('playing');
+            var $time = document.getElementById('time');
+            var $alltime = document.getElementById('alltime');
+            var $full = document.getElementById('full');
+            var $pic = document.getElementById('pic');
+            var $progress = document.getElementById('progress');
+
+
+            vd.addEventListener("loadedmetadata",function(){
+                    formatSeconds(vd.duration);
+                    $alltime.innerHTML =  formatSeconds(vd.duration)//视频播放总时间
+            });
+
+            //当指定的音频/视频的元数据已加载时，会发生 loadedmetadata 事件
+            //duration获取音频/视频播放总时间
+
+
+            $time.innerHTML =  formatSeconds(vd.currentTime);
+            vd.addEventListener("timeupdate",function(){
+                    formatSeconds(vd.currentTime);
+                    $time.innerHTML =  formatSeconds(vd.currentTime);//视频播放位置
+                    $progress.style.width = 100 * vd.currentTime/vd.duration + '%'//计算播放精度条
+            });
+
+            //timeupdate当视频播放位置已经改变，显示视频当前播放位置
+            //currentTime设置或返回音频/视频中的当前播放位置（以秒计）
+
+            vd.addEventListener("ended",function(){
+                    $pic.setAttribute('src','images/playing.png')
+            });
+
+            //ended视屏播放结束..
+
+            var hid = 1
+            $full.addEventListener("click",function(){
+                    if(hid == 1){
+                        requestFullScreen();//全屏
+                        hid = 2
+                    }else{
+                        exitFullscreen();//退出全屏
+                        hid = 1
+                    }
+            });
+
+            function played(obj){//点击播放按钮
+                if(vd.paused){
+                    vd.play()
+                    obj.setAttribute('src','images/paused.png')
+                }else{
+                    vd.pause()
+                    obj.setAttribute('src','images/playing.png') 
+                }
+               
+            };
+             
+
+            function formatSeconds(value){//将总时间秒转换为时/分/秒
+                    var time;
+                    value = parseInt(value);
+                    var h = Math.floor(value / 3600);
+                    var m = Math.floor((value - h*3600) / 60);
+                    var s = Math.floor(value - h*3600 - m*60);
+                    hour = times(h);
+                    min = times(m);
+                    sec = times(s);
+                    time = hour + ':' + min + ':' + sec
+                    return  time;
+             };
+
+             function times(value){
+                if(value<10){
+                        return "0" + value
+                }else{
+                    return value
+                }
+             };
+
+
+             //进入全屏
+            function requestFullScreen() {
+                if(vd.requestFullScreen) {
+                    vd.requestFullScreen(); 
+                } else if(vd.mozRequestFullScreen) {
+                    vd.mozRequestFullScreen(); 
+                } else if(vd.webkitRequestFullScreen) {
+                    vd.webkitRequestFullScreen(); 
+                }
+            }; 
+             //退出全屏
+             function exitFullscreen() {
+                 var de = document;
+                 if (de.exitFullscreen) {
+                     de.exitFullscreen();
+                 } else if (de.mozCancelFullScreen) {
+                     de.mozCancelFullScreen();
+                 } else if (de.webkitCancelFullScreen) {
+                     de.webkitCancelFullScreen();
+                 }
+            }
+
+        </script>
+    
+
+</body>
+</html>
